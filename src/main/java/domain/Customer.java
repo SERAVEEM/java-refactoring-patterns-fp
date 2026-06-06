@@ -28,18 +28,14 @@ public class Customer
 		while (rentals.hasMoreElements ()) {
 			Rental each = (Rental)rentals.nextElement ();
 			
-			//REFACTORED: Langsung memasukkan nilai harga ke string teks tanpa perantara variabel lokal
-						result += "\t" + each.getMovie ().getTitle () + "\t" + String.valueOf (each.getCharge()) + "\n";
-			
-			//smell 4 : duplicate code. 
-			//extract method lalu move ke class Rental, agar Rental bisa menghitung nya lalu di sini hanya perlu memanggil saja
-			//REFACTORED: Memanggil getCharge() gaya baru tanpa oper parameter. Customer tidak perlu tahu rumus hitungnya.
-		
-			//Smell 3: Feature Envy
-			//getting a point adalah aturan dari rental bukan aturan customer
-			//REFACTORED: Poin murni dihitung oleh Rental, di sini Customer tinggal mengakumulasikan totalnya saja dengan +=
+			// REFACTORED & SEMBUH:
+			// - Smell 4 (Duplicate Code): Diatasi dengan Extract & Move Method ke Rental.java
+			// - Smell 3 (Feature Envy): Diatasi dengan membiarkan Rental menghitung datanya sendiri (Tell, Don't Ask)
+			// - Temp Variable Pollution: Mengeliminasi variabel 'thisAmount' dan langsung mencetak nilainya
+			result += "\t" + each.getMovie ().getTitle () + "\t" + String.valueOf (each.getCharge()) + "\n";
 		}
 		
+		// 🛠️ REFACTORED: Menggantikan akumulasi variabel lokal totalAmount dan frequentRenterPoints dengan query method terpusat
 		result += "You owed " + String.valueOf (getTotalCharge()) + "\n";
 		result += "You earned " + String.valueOf (getTotalFrequentRenterPoints()) + " frequent renter points\n";
 		
@@ -53,12 +49,10 @@ public class Customer
 		while (rentals.hasMoreElements ()) {
 			Rental each = (Rental)rentals.nextElement ();
 			
-			// 🛠️ REFACTORED: Langsung memasukkan nilai harga ke format HTML
-						result += "\t" + each.getMovie ().getTitle () + ": " + String.valueOf (each.getCharge()) + "<br>\n";
-						
-			//Smell 4: Duplicated Code 
-			//Logika perhitungan ini sama persis dengan yang ada di fungsi statement().
-			//REFACTORED: htmlStatement() sekarang memakai fungsi getCharge() yang sama dari class Rental.			
+			// REFACTORED: 
+			// Smell 4 (Duplicated Code) pada logika perhitungan harga dan poin di htmlStatement() 
+			// kini punah karena langsung memanggil fungsi terpusat dari objek masing-masing.
+			result += "\t" + each.getMovie ().getTitle () + ": " + String.valueOf (each.getCharge()) + "<br>\n";
 		}
 		
 		result += "</p>\n<p>You owed <em>" + String.valueOf (getTotalCharge()) + "</em></p>\n";
@@ -66,7 +60,7 @@ public class Customer
 		return result;
 	}
 	
-	//REFACTORED : menggantikan variabel lokal totalAmount dengn query method terpusat
+	//REFACTORED : menggantikan variabel lokal totalAmount dengan query method terpusat
 	public double getTotalCharge() {
 		double result = 0;
 		Enumeration rentals = this.rentals.elements();
@@ -78,7 +72,6 @@ public class Customer
 	}
 
 	//REFACTORED : Menggantikan variabel lokal frequentRenterPoints dengan query method terpusat 
-	//
 	public int getTotalFrequentRenterPoints() {
 		int result = 0;
 		Enumeration rentals = this.rentals.elements();
