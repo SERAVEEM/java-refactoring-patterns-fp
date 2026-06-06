@@ -38,6 +38,15 @@ public class VideoStoreTest extends TestCase
 		
 		assertEquals ("Rental Record for Fred\n\tPlan 9 from Outer Space\t2.0\n\t8 1/2\t2.0\n\tEraserhead\t3.5\nYou owed 7.5\nYou earned 3 frequent renter points\n", customer.statement ());
 	}
+	
+	public void testHtmlStatement() {
+		customer.addRental (new Rental (new Movie ("The Cell", Movie.NEW_RELEASE), 3));
+		String expectedHtml = "<h1>Rental Record for <em>Fred</em></h1>\n<p>\n" +
+		                      "\tThe Cell: 9.0<br>\n" +
+		                      "</p>\n<p>You owed <em>9.0</em></p>\n" +
+		                      "<p>You earned <em>2</em> frequent renter points</p>\n";
+		assertEquals (expectedHtml, customer.htmlStatement());
+	}
 
 	private Customer customer;
 }
