@@ -10,7 +10,7 @@ public class Customer
 	}
 	
 	public void addRental (Rental rental) {
-		rentals.addElement (rental);
+		rentals.addElement (rental); 
 	}
 	
 	public String getName () {
@@ -23,11 +23,16 @@ public class Customer
 		Enumeration 		rentals 				= this.rentals.elements ();
 		String 				result 					= "Rental Record for " + getName () + "\n";
 		
+		//Smell 1 : Long Method
+		/*fungsi statement() ini melanggar SRP, dia looping data, hitung harga film, hitung point reward, format teks struk*/
+		
 		while (rentals.hasMoreElements ()) {
 			double 		thisAmount = 0;
 			Rental each = (Rental)rentals.nextElement ();
 			
-			// determines the amount for each line
+			// Smell 2 : feature envy and switch statement
+			// Class customer can edit tenral (each.getDaysRenteng()) and movie data (getPriceCode())
+			// aturan untuk harga sewa harusnya ada di dalam class rental bukan di customer
 			switch (each.getMovie ().getPriceCode ()) {
 				case Movie.REGULAR:
 					thisAmount += 2;
@@ -44,6 +49,8 @@ public class Customer
 					break;
 			}
 			
+			//Smell 3: Feature Envy
+			// getting a point adalah aturan dari rental bukan aturan customer
 			frequentRenterPoints++;
 			
 			if (each.getMovie ().getPriceCode () == Movie.NEW_RELEASE 
