@@ -2,9 +2,9 @@ package domain;
 
 public class Rental
 {
-	//Smell 1 : Lazy Class
-	//class ini cuman ada field fungsi getter standar, class ini juga tidak punya business logic sama sekali
-	//Fungsi kelas ini cuman untuk class Customer mengambil data nya untuk perhitungan
+	// Smell 1: Lazy Class
+	// Kelas ini awalnya cuma berisi field data dan fungsi getter standar tanpa logika bisnis sama sekali.
+	// Dulu fungsi kelas ini cuma dijadikan tempat mampir buat kelas Customer mengambil data saat perhitungan.
 	public Rental (Movie movie, int daysRented) {
 		this.movie 		= movie;
 		this.daysRented = daysRented;
@@ -18,30 +18,14 @@ public class Rental
 		return movie;
 	}
 	
-	// REFACTORED: Hasil pindahan (Move Method) dari Customer. 
-	// Sekarang Rental sendiri yang menghitung harganya sendiri tanpa bergantung pada parameter dari luar (Tell, Don't Ask).
+	// REFACTORED: Hasil pindahan fungsi (Move Method) dari kelas Customer.
+	// Sekarang kelas Rental sudah mandiri untuk menghitung harganya sendiri tanpa perlu oper parameter dari luar.
 	public double getCharge() {
-		double result = 0;
-		switch (getMovie ().getPriceCode ()) {
-			case Movie.REGULAR:
-				result += 2;
-				if (getDaysRented () > 2)
-					result += (getDaysRented () - 2) * 1.5;
-				break;
-			case Movie.NEW_RELEASE:
-				result += getDaysRented () * 3;
-				break;
-			case Movie.CHILDRENS:
-				result += 1.5;
-				if (getDaysRented () > 3)
-					result += (getDaysRented () - 3) * 1.5;
-				break;
-		}
-		return result;
+		return movie.getCharge(daysRented);
 	}
 
-	// REFACTORED: Hasil pindahan logika poin reward. 
-	// Mengembalikan poin sewa (1 atau 2) khusus untuk objek transaksi ini saja.
+	// REFACTORED: Hasil pindahan logika poin reward dari kelas Customer.
+	// Fungsi ini murni mengembalikan poin sewa (1 atau 2 poin) khusus untuk objek transaksi ini saja.
 	public int getFrequentRenterPoints() {
 		if (getMovie ().getPriceCode () == Movie.NEW_RELEASE && getDaysRented () > 1) {
 			return 2;
