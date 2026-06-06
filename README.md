@@ -1,7 +1,7 @@
 # DOKUMENTASI REFACTORING: VIDEOSTORE-JAVA
 
 **Dokumen Komprehensif Rekayasa Ulang Perangkat Lunak**  
-**Perancang Arsitektur:** 
+**Perancang Arsitektur:** kelompok X
 **Status Pengujian:** 100% Passed (5/5 JUnit Automation Tests Green)  
 **Target Arsitektur:** Clean Code, SOLID Principles, State/Strategy Pattern
 
