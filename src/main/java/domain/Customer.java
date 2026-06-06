@@ -17,9 +17,8 @@ public class Customer
 		return name;
 	}
 	
-	public String statement () {
-		double 				totalAmount 			= 0;
-		int					frequentRenterPoints 	= 0;
+	//Smell : Mysterious Name -> REFACTORED: Diubah dari statement() menjadi generateTextReceipt() agar lebih deskriptif
+	public String generateTextReceipt () {
 		Enumeration 		rentals 				= this.rentals.elements ();
 		String 				result 					= "Rental Record for " + getName () + "\n";
 		
@@ -27,98 +26,69 @@ public class Customer
 		/*fungsi statement() ini melanggar SRP, dia looping data, hitung harga film, hitung point reward, format teks struk*/
 		
 		while (rentals.hasMoreElements ()) {
-			double 		thisAmount = 0;
 			Rental each = (Rental)rentals.nextElement ();
 			
-			// Smell 2 : feature envy and switch statement
-			// Class customer can edit rental (each.getDaysRented()) and movie data (getPriceCode())
-			// aturan untuk harga sewa harusnya ada di dalam class rental bukan di customer
-			switch (each.getMovie ().getPriceCode ()) {
-				case Movie.REGULAR:
-					thisAmount += 2;
-					if (each.getDaysRented () > 2)
-						thisAmount += (each.getDaysRented () - 2) * 1.5;
-					break;
-				case Movie.NEW_RELEASE:
-					thisAmount += each.getDaysRented () * 3;
-					break;
-				case Movie.CHILDRENS:
-					thisAmount += 1.5;
-					if (each.getDaysRented () > 3)
-						thisAmount += (each.getDaysRented () - 3) * 1.5;
-					break;
-			}
+			//REFACTORED: Langsung memasukkan nilai harga ke string teks tanpa perantara variabel lokal
+						result += "\t" + each.getMovie ().getTitle () + "\t" + String.valueOf (each.getCharge()) + "\n";
 			
+			//smell 4 : duplicate code. 
+			//extract method lalu move ke class Rental, agar Rental bisa menghitung nya lalu di sini hanya perlu memanggil saja
+			//REFACTORED: Memanggil getCharge() gaya baru tanpa oper parameter. Customer tidak perlu tahu rumus hitungnya.
+		
 			//Smell 3: Feature Envy
-			// getting a point adalah aturan dari rental bukan aturan customer
-			frequentRenterPoints++;
-			
-			if (each.getMovie ().getPriceCode () == Movie.NEW_RELEASE 
-					&& each.getDaysRented () > 1)
-				frequentRenterPoints++;
-				
-			result += "\t" + each.getMovie ().getTitle () + "\t"
-								+ String.valueOf (thisAmount) + "\n";
-			totalAmount += thisAmount;
-				
+			//getting a point adalah aturan dari rental bukan aturan customer
+			//REFACTORED: Poin murni dihitung oleh Rental, di sini Customer tinggal mengakumulasikan totalnya saja dengan +=
 		}
 		
-		result += "You owed " + String.valueOf (totalAmount) + "\n";
-		result += "You earned " + String.valueOf (frequentRenterPoints) + " frequent renter points\n";
-		
-		return result;
-	}
-	
-	
-	
-	public String htmlStatement () {
-		double 				totalAmount 			= 0;
-		int					frequentRenterPoints 	= 0;
-		Enumeration 		rentals 				= this.rentals.elements ();
-		String 				result 					= "<h1>Rental Record for <em>" + getName () + "</em></h1>\n<p>\n";
-		
-		while (rentals.hasMoreElements ()) {
-			double 		thisAmount = 0;
-			Rental each = (Rental)rentals.nextElement ();
-			
-			//  Smell 4: Duplicated Code 
-			// Logika perhitungan ini sama persis dengan yang ada di fungsi statement().
-			switch (each.getMovie ().getPriceCode ()) {
-				case Movie.REGULAR:
-					thisAmount += 2;
-					if (each.getDaysRented () > 2)
-						thisAmount += (each.getDaysRented () - 2) * 1.5;
-					break;
-				case Movie.NEW_RELEASE:
-					thisAmount += each.getDaysRented () * 3;
-					break;
-				case Movie.CHILDRENS:
-					thisAmount += 1.5;
-					if (each.getDaysRented () > 3)
-						thisAmount += (each.getDaysRented () - 3) * 1.5;
-					break;
-			}
-			
-			// Smell 5: Shotgun Surgery
-			// Logika poin reward juga diduplikasi. Ini memicu gejala Shotgun Surgery, 
-			// di mana satu perubahan kecil pada aturan bisnis memaksa kita melakukan modifikasi di banyak tempat.
-			frequentRenterPoints++;
-			
-			if (each.getMovie ().getPriceCode () == Movie.NEW_RELEASE 
-					&& each.getDaysRented () > 1)
-				frequentRenterPoints++;
-				
-			result += "\t" + each.getMovie ().getTitle () + ": "
-								+ String.valueOf (thisAmount) + "<br>\n";
-			totalAmount += thisAmount;
-		}
-		
-		result += "</p>\n<p>You owed <em>" + String.valueOf (totalAmount) + "</em></p>\n";
-		result += "<p>You earned <em>" + String.valueOf (frequentRenterPoints) + "</em> frequent renter points</p>\n";
+		result += "You owed " + String.valueOf (getTotalCharge()) + "\n";
+		result += "You earned " + String.valueOf (getTotalFrequentRenterPoints()) + " frequent renter points\n";
 		
 		return result;
 	}
 
+	public String htmlStatement () {
+		Enumeration 		rentals 				= this.rentals.elements ();
+		String 				result 					= "<h1>Rental Record for <em>" + getName () + "</em></h1>\n<p>\n";
+		
+		while (rentals.hasMoreElements ()) {
+			Rental each = (Rental)rentals.nextElement ();
+			
+			// 🛠️ REFACTORED: Langsung memasukkan nilai harga ke format HTML
+						result += "\t" + each.getMovie ().getTitle () + ": " + String.valueOf (each.getCharge()) + "<br>\n";
+						
+			//Smell 4: Duplicated Code 
+			//Logika perhitungan ini sama persis dengan yang ada di fungsi statement().
+			//REFACTORED: htmlStatement() sekarang memakai fungsi getCharge() yang sama dari class Rental.			
+		}
+		
+		result += "</p>\n<p>You owed <em>" + String.valueOf (getTotalCharge()) + "</em></p>\n";
+		result += "<p>You earned <em>" + String.valueOf (getTotalFrequentRenterPoints()) + "</em> frequent renter points</p>\n";
+		return result;
+	}
+	
+	//REFACTORED : menggantikan variabel lokal totalAmount dengn query method terpusat
+	public double getTotalCharge() {
+		double result = 0;
+		Enumeration rentals = this.rentals.elements();
+		while (rentals.hasMoreElements()) {
+			Rental each = (Rental) rentals.nextElement();
+			result += each.getCharge();
+		}
+		return result;
+	}
+
+	//REFACTORED : Menggantikan variabel lokal frequentRenterPoints dengan query method terpusat 
+	//
+	public int getTotalFrequentRenterPoints() {
+		int result = 0;
+		Enumeration rentals = this.rentals.elements();
+		while (rentals.hasMoreElements()) {
+			Rental each = (Rental) rentals.nextElement();
+			result += each.getFrequentRenterPoints();
+		} 
+		return result;
+	}
+	
 	private String name;
 	private Vector rentals = new Vector ();
 }
