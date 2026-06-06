@@ -1,5 +1,3 @@
-Berikut adalah berkas dokumentasi lengkap dalam format Markdown (`.md`). Anda dapat menyalin seluruh teks di dalam kotak kode di bawah ini, lalu menyimpannya ke dalam sebuah berkas bernama `README.md` atau `Laporan_Refactoring.md`.
-
 ```markdown
 # DOKUMENTASI REFACTORING: VIDEOSTORE-JAVA
 
